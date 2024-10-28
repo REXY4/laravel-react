@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+     "jsx": "react",
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "types": ["vite/client"]
+  },
+  "include": ["resources/**/*.ts", "resources/**/*.tsx", "resources/js/app.js", "resources/js/app.jsx"],
+  "exclude": ["node_modules"]
+}
