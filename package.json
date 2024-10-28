@@ -2,7 +2,7 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "php artisan migrate && vite build",
+        "build": "vite build && php artisan migrate",
         "dev": "vite"
     },
     "devDependencies": {
