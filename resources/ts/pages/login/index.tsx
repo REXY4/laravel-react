@@ -2,6 +2,7 @@ import React from 'react';
 import Card from '../../componets/cards/Card';
 import Input from '../../componets/inputs/input';
 import Button from '../../componets/buttons/button';
+
 const LoginPage = () => {
     return (
         <div className="flex justify-center items-center h-screen bg-gray-100 w-full">

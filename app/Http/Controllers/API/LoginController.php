@@ -23,11 +23,14 @@ class LoginController extends Controller
             $user = Auth::user();
             $token = $user->createToken('API Token')->plainTextToken;
 
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Login successful',
-                'token' => $token,
-            ], 200);
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Login successful',
+                    'data' => [
+                        'token' => $token,
+                        'user' => $user, // Mengembalikan data user
+                    ],
+                ], 200);
         }
 
         return response()->json([
