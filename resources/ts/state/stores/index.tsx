@@ -8,7 +8,7 @@ const persistConfig = {
     key: 'root',
     storage: storage,
     blacklist: [''], // blacklist datanya tidak di masukan ke dalam storage
-    whitelist: ['setting'], // klw withe list data nya di masukan ke dalam storage
+    whitelist: ['setting', 'auth'], // klw withe list data nya di masukan ke dalam storage
 };
 
 const persistedReducer = persistReducer(persistConfig, reducers);

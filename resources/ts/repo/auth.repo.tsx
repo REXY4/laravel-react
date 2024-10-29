@@ -7,14 +7,12 @@ const authLogin = async (
 ): Promise<ResponseType<LoginResponse>> => {
     try {
         const response = await axios.post<ResponseType<LoginResponse>>(
-            '/login',
+            'api/v1/login',
             {
                 email,
                 password,
             }
         );
-        const { token } = response.data.data;
-        sessionStorage.setItem('authToken', token);
         return response.data;
     } catch (error) {
         throw error;

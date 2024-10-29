@@ -8,14 +8,17 @@ import AuthAction from '../state/actions/Auth.action';
 const selector = (state: AppRootState) => state.auth;
 
 const AuthUseCase = (): AuthSettingStore => {
-    const { user } = useSelector<AppRootState, AuthStoreState>(selector);
+    const { user, isLogin } = useSelector<AppRootState, AuthStoreState>(
+        selector
+    );
     const dispatch = useDispatch();
     const authLogin = useCallback(
-        (email: string, password: string) =>
-            AuthAction.authLogin(email, password)(dispatch),
+        (email: string, password: string, navigate: Function) =>
+            AuthAction.authLogin(email, password, navigate)(dispatch),
         [dispatch]
     );
     return {
+        isLogin,
         user,
         authLogin,
     };

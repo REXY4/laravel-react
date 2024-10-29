@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 
 type InputProps = {
+    name: string;
     label?: string;
     type?: 'text' | 'email' | 'password' | 'number'; // Tipe input
     variant?: 'primary' | 'secondary' | 'success' | 'danger'; // Variasi input
@@ -19,6 +20,7 @@ const Input: React.FC<InputProps> = ({
     placeholder,
     value,
     onChange,
+    name,
     required = false,
 }) => {
     const [showPassword, setShowPassword] = useState(false);
@@ -43,6 +45,7 @@ const Input: React.FC<InputProps> = ({
             )}
             <div className="relative">
                 <input
+                    name={name}
                     autoComplete="false"
                     type={
                         type === 'password'
