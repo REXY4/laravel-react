@@ -1,15 +1,20 @@
 import { Dispatch } from 'redux';
-import { AuthActionTypes } from '../action-types/auth.action-types';
-import authRepo from '../../repo/auth.repo';
 import authService from '../../services/auth.service';
+import { AuthActionTypes } from '../action-types/auth.action-types';
 
 const authLogin =
-    (email: string, password: string) => async (dispatch: Dispatch) => {
+    (email: string, password: string, navigate: Function) =>
+    async (dispatch: Dispatch) => {
         try {
             const response = await authService.authLogin(email, password);
-            dispatch({
-                type: AuthActionTypes.LOGIN,
-            });
+            if (response.status == 'success') {
+                dispatch({
+                    type: AuthActionTypes.LOGIN,
+                    user: response.data.user,
+                    token: response.data.token,
+                });
+                navigate('/dashboard');
+            }
         } catch (error) {
             throw error;
         }

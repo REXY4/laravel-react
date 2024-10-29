@@ -8,6 +8,7 @@ type AuthStoreState = Omit<AuthSettingStore, 'authLogin'>;
 
 const INITIAL_STATE: AuthStoreState = {
     user: null,
+    isLogin: false,
 };
 
 const AuthReducers = (
@@ -17,9 +18,11 @@ const AuthReducers = (
     const { type, payload } = action;
     switch (type) {
         case AuthActionTypes.LOGIN: {
+            sessionStorage.setItem('_token', action.token);
             return {
                 ...state,
-                user: action.payload.user,
+                user: action.user,
+                isLogin: true,
             };
         }
         default:

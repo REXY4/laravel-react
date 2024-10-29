@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import 'react-modern-drawer/dist/index.css';
 import { App } from './app';
 
 // import { App } from './app';
