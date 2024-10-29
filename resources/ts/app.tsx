@@ -1,8 +1,16 @@
-import React from "react"
-export function App(){
+import React from 'react';
+import {
+    createBrowserRouter,
+    RouterProvider,
+    Route,
+    Link,
+} from 'react-router-dom';
+import { router } from './routers';
+
+export function App() {
     return (
-        <div>
-            <h1 className="text-center">Hallo APP</h1>
-        </div>
-    )
+        <>
+            <RouterProvider router={router} />
+        </>
+    );
 }
