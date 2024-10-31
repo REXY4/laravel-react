@@ -39,11 +39,11 @@ const updateMenu = async (body: {
     id: string;
     title: string;
     parent_id: string;
-    dept: number;
+    depth: number;
 }): Promise<any> => {
     try {
-        const response = await axios.post<ResponseType<MenuInterface[]>>(
-            'api/v1/menus' + body.id,
+        const response = await axios.put<ResponseType<MenuInterface[]>>(
+            'api/v1/menus/' + body.id,
             body,
             {
                 headers: {

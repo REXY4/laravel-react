@@ -11,5 +11,5 @@ export interface MenuInterface {
 export interface MenuRequest {
     title: string;
     parent_id: string;
-    dept: number;
+    depth: number;
 }

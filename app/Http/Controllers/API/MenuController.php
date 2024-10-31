@@ -10,6 +10,22 @@ use Str;
 
 class MenuController extends Controller
 {
+    public function sortByDepth($items)
+{
+    // Pertama, urutkan children berdasarkan depth
+    foreach ($items as &$item) {
+        if (!empty($item['children'])) {
+            $item['children'] = $this->sortByDepth($item['children']);
+        }
+    }
+
+    // Setelah mengurutkan children, urutkan item saat ini berdasarkan depth
+    usort($items, function ($a, $b) {
+        return $a['depth'] <=> $b['depth'];
+    });
+
+    return $items;
+}
     // Mendapatkan semua menu secara hierarki
     public function index()
     {
@@ -22,6 +38,8 @@ class MenuController extends Controller
             $menu->children = $menu->children ?? [];
             return $menu;
         });
+
+        $menus = $this->sortByDepth($menus->toArray());
 
         return response()->json([
             'status' => 'success',

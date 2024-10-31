@@ -1,6 +1,13 @@
-import React, { ChangeEvent, Children, useRef, useState } from 'react';
+import React, {
+    ChangeEvent,
+    useCallback,
+    useEffect,
+    useRef,
+    useState,
+} from 'react';
 import SortableTree, {
     TreeItem,
+    getDepth,
     toggleExpandedForAll,
 } from '@nosferatu500/react-sortable-tree';
 import 'react-sortable-tree/style.css'; // Import default styles
@@ -14,6 +21,11 @@ import MenuRepo from '../../../../repo/menus.repo';
 
 const generateUniqueId = () => Math.random().toString(36).substr(2, 9);
 
+interface DragAnDrop {
+    isDragging: boolean;
+    draggedNode: any;
+}
+
 const findGroupTitle = (data: any, targetTitle: any) => {
     for (const item of data) {
         if (item.title === targetTitle) {
@@ -26,6 +38,16 @@ const findGroupTitle = (data: any, targetTitle: any) => {
     }
     return null; // Jika tidak ditemukan
 };
+
+interface CanDropParams {
+    node: any;
+    prevPath: number[];
+    prevParent: any;
+    prevTreeIndex: number;
+    nextPath: number[];
+    nextParent: any;
+    nextTreeIndex: number;
+}
 
 const deleteItemByTitle = (data: any, targetTitle: any) => {
     return data
@@ -51,85 +73,97 @@ interface Props {
 const LayoutFolderPrimary: React.FC<Props> = ({ data }) => {
     const [valueItem, setValueItem] = useState<string>('');
     const [saveParentId, setSaveParentId] = useState<string>('');
+    const [saveParentData, setSaveParentData] = useState<any>();
+    const [conDrag, setConDrag] = useState<boolean>(false);
     const refDrag = useRef<any>(null);
+    const refDrag2 = useRef<any>(null);
     const [editData, setEditData] = useState<EditData>({
         edit: false,
         prevVal: '',
     });
     const [treeData, setTreeData] = useState<TreeItem[] | []>(data);
-
-    const canDrag = ({ path }: any): boolean => {
-        return path.length > 0;
+    const canDrag = (param: any): boolean => {
+        // refDrag2.current = param.parentNode;
+        return param.path.length > 0;
     };
-
     const handleAdd = async (node: any, path: number[]) => {
         setSaveParentId(node.id);
+        setSaveParentData(node);
+        setEditData({ edit: false, prevVal: '' });
         const newChild = {
             id: generateUniqueId,
             title: '',
+            depth: getDepth(node),
             children: [],
         };
         if (!node.children) {
-            console.log(node);
+            node.children.push(newChild);
         } else {
             node.children.push(newChild);
         }
-
         const updatedTreeData = toggleExpandedForAll({
             treeData,
             expanded: true,
         });
-
         setTreeData(updatedTreeData);
     };
 
     const handleAddItem = (node: any) => {
         node.title = valueItem;
-        setEditData({ edit: false, prevVal: '' });
         const updatedTreeData = toggleExpandedForAll({
             treeData,
             expanded: true,
         });
-        let order = 0;
-        if (node.children.length > 0) {
-            order = node.children.length + 1;
+        let order = 1;
+        if (saveParentData.children !== undefined) {
+            order = saveParentData.children.length;
         }
-        const updateNewData: MenuRequest = {
-            title: valueItem,
-            dept: order,
-            parent_id: saveParentId,
-        };
-        createMenu.mutate(updateNewData);
+        if (editData.edit) {
+            const updateNewData: any = {
+                id: node.id,
+                title: valueItem,
+                depth: node.depth,
+                parent_id: node.parent_id,
+            };
+            updateMenu.mutate(updateNewData);
+        } else {
+            const updateNewData: MenuRequest = {
+                title: valueItem,
+                depth: order,
+                parent_id: saveParentId,
+            };
+            createMenu.mutate(updateNewData);
+        }
         setTreeData(updatedTreeData);
     };
 
     const createMenu = useMutation({
         mutationFn: MenuRepo.createMenu,
         onSuccess: () => {
-            console.log('Post updated successfully');
+            //  console.log('Post updated successfully');
         },
         onError: (error) => {
-            console.error('Error updating post:', error);
+            //  console.error('Error updating post:', error);
         },
     });
 
     const deleteMenu = useMutation({
         mutationFn: MenuRepo.deleteMenu,
         onSuccess: () => {
-            console.log('Post updated successfully');
+            //   console.log('Post updated successfully');
         },
         onError: (error) => {
-            console.error('Error updating post:', error);
+            //  console.error('Error updating post:', error);
         },
     });
 
     const updateMenu = useMutation({
         mutationFn: MenuRepo.updateMenu,
         onSuccess: () => {
-            console.log('Post updated successfully');
+            //  console.log('Post updated successfully');
         },
         onError: (error) => {
-            console.error('Error updating post:', error);
+            //  console.error('Error updating post:', error);
         },
     });
 
@@ -137,16 +171,10 @@ const LayoutFolderPrimary: React.FC<Props> = ({ data }) => {
         setSaveParentId(node.id);
         setEditData({ ...editData, edit: true, prevVal: node.title });
         node.title = '';
-        const updateNewData: any = {
-            title: valueItem,
-            dept: node.dept,
-            parent_id: node.parent_id,
-        };
         const updatedTreeData = toggleExpandedForAll({
             treeData,
             expanded: true,
         });
-        updateMenu.mutate(updateNewData);
         setTreeData(updatedTreeData);
     };
 
@@ -170,17 +198,56 @@ const LayoutFolderPrimary: React.FC<Props> = ({ data }) => {
         }
     };
 
+    const getDataDrop = (param: CanDropParams) => {
+        refDrag.current = param;
+        // if (!checkDrag || checkDrag.node.id !== param.node.id) {
+        //     setCheckDrag(param);
+        // }
+        // if (conDrag) {
+        //     setCheckDrag(param);
+        // }
+    };
+
+    useEffect(() => {
+        if (conDrag) {
+            if (refDrag.current.nextParent !== undefined) {
+                const filterDeepth = refDrag.current.nextParent.children.find(
+                    (item: any) => item.depth == refDrag.current.nextTreeIndex
+                );
+                const updateData = {
+                    ...filterDeepth,
+                    depth: refDrag.current.prevTreeIndex,
+                };
+                updateMenu.mutate(updateData);
+            }
+            const updateData = {
+                id: refDrag.current.node.id,
+                title: refDrag.current.node.title,
+                depth: refDrag.current.nextTreeIndex,
+                parent_id: refDrag.current.nextParent
+                    ? refDrag.current.nextParent.id
+                    : '',
+            };
+            updateMenu.mutate(updateData);
+            setConDrag(false);
+        }
+    }, [conDrag]);
     return (
         <div style={{ height: '100vh' }}>
             <SortableTree
                 className="node-main"
                 treeData={treeData}
-                virtuosoRef={refDrag}
-                onVisibilityToggle={(param) => {
-                    console.log(param);
+                // virtuosoRef={refDrag}
+                canDrop={(param: CanDropParams) => {
+                    getDataDrop(param);
+                    return true;
+                }}
+                onDragStateChanged={(param: DragAnDrop) => {
+                    setConDrag(!param.isDragging);
+                    // setConDrag(param.isDragging);
                 }}
                 onChange={(newTreeData) => setTreeData(newTreeData)}
-                canDrag={canDrag}
+                canDrag={(param: any) => canDrag(param)}
                 generateNodeProps={({ node, path }) => ({
                     title: (
                         <div className="custom-node">
