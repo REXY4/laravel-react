@@ -8,6 +8,9 @@ import './CustomTreeStyles.css'; // Custom CSS file for additional styles
 import ButtonRound from '../../../../componets/buttons/ButtonRound';
 import Input from '../../../../componets/inputs/input';
 import { Icon } from '@iconify/react';
+import { MenuInterface, MenuRequest } from '../../../../types/MenuTypes';
+import { useMutation } from '@tanstack/react-query';
+import MenuRepo from '../../../../repo/menus.repo';
 
 const generateUniqueId = () => Math.random().toString(36).substr(2, 9);
 
@@ -41,117 +44,28 @@ interface EditData {
     prevVal: string;
 }
 
-const LayoutFolderPrimary: React.FC = () => {
+interface Props {
+    data: Array<MenuInterface>;
+}
+
+const LayoutFolderPrimary: React.FC<Props> = ({ data }) => {
     const [valueItem, setValueItem] = useState<string>('');
+    const [saveParentId, setSaveParentId] = useState<string>('');
     const refDrag = useRef<any>(null);
     const [editData, setEditData] = useState<EditData>({
         edit: false,
         prevVal: '',
     });
-    const [treeData, setTreeData] = useState<TreeItem[]>([
-        {
-            id: generateUniqueId(), // Assign an ID to the root node
-            title: 'system management',
-            children: [
-                {
-                    id: generateUniqueId(),
-                    title: 'System Management',
-                    children: [
-                        {
-                            id: generateUniqueId(),
-                            title: 'Systems',
-                            children: [
-                                {
-                                    id: generateUniqueId(),
-                                    title: 'System Code',
-                                    children: [
-                                        {
-                                            id: generateUniqueId(),
-                                            title: 'Code Registration',
-                                        },
-                                        {
-                                            id: generateUniqueId(),
-                                            title: 'Code Registration - 2',
-                                        },
-                                        {
-                                            id: generateUniqueId(),
-                                            title: 'Properties',
-                                        },
-                                    ],
-                                },
-                                {
-                                    id: generateUniqueId(),
-                                    title: 'Menus',
-                                    children: [
-                                        {
-                                            id: generateUniqueId(),
-                                            title: 'Menu Registration',
-                                        },
-                                    ],
-                                },
-                                {
-                                    id: generateUniqueId(),
-                                    title: 'API List',
-                                    children: [
-                                        {
-                                            id: generateUniqueId(),
-                                            title: 'API Registration',
-                                        },
-                                        {
-                                            id: generateUniqueId(),
-                                            title: 'API Edit',
-                                        },
-                                    ],
-                                },
-                            ],
-                        },
-                        {
-                            id: generateUniqueId(),
-                            title: 'Users & Groups',
-                            children: [
-                                {
-                                    id: generateUniqueId(),
-                                    title: 'Users',
-                                    children: [
-                                        {
-                                            id: generateUniqueId(),
-                                            title: 'User Account Registration',
-                                        },
-                                    ],
-                                },
-                                {
-                                    id: generateUniqueId(),
-                                    title: 'Groups',
-                                    children: [
-                                        {
-                                            id: generateUniqueId(),
-                                            title: 'User Group Registration',
-                                        },
-                                    ],
-                                },
-                                {
-                                    id: generateUniqueId(),
-                                    title: '사용자 승인',
-                                }, // "User Approval" in Korean
-                                {
-                                    id: generateUniqueId(),
-                                    title: '사용자 승인 상세',
-                                }, // "User Approval Detail" in Korean
-                            ],
-                        },
-                    ],
-                },
-            ],
-        },
-    ]);
+    const [treeData, setTreeData] = useState<TreeItem[] | []>(data);
 
     const canDrag = ({ path }: any): boolean => {
         return path.length > 0;
     };
 
     const handleAdd = async (node: any, path: number[]) => {
+        setSaveParentId(node.id);
         const newChild = {
-            id: generateUniqueId(),
+            id: generateUniqueId,
             title: '',
             children: [],
         };
@@ -176,21 +90,69 @@ const LayoutFolderPrimary: React.FC = () => {
             treeData,
             expanded: true,
         });
+        let order = 0;
+        if (node.children.length > 0) {
+            order = node.children.length + 1;
+        }
+        const updateNewData: MenuRequest = {
+            title: valueItem,
+            dept: order,
+            parent_id: saveParentId,
+        };
+        createMenu.mutate(updateNewData);
         setTreeData(updatedTreeData);
     };
 
+    const createMenu = useMutation({
+        mutationFn: MenuRepo.createMenu,
+        onSuccess: () => {
+            console.log('Post updated successfully');
+        },
+        onError: (error) => {
+            console.error('Error updating post:', error);
+        },
+    });
+
+    const deleteMenu = useMutation({
+        mutationFn: MenuRepo.deleteMenu,
+        onSuccess: () => {
+            console.log('Post updated successfully');
+        },
+        onError: (error) => {
+            console.error('Error updating post:', error);
+        },
+    });
+
+    const updateMenu = useMutation({
+        mutationFn: MenuRepo.updateMenu,
+        onSuccess: () => {
+            console.log('Post updated successfully');
+        },
+        onError: (error) => {
+            console.error('Error updating post:', error);
+        },
+    });
+
     const handleEditData = (node: any) => {
+        setSaveParentId(node.id);
         setEditData({ ...editData, edit: true, prevVal: node.title });
         node.title = '';
+        const updateNewData: any = {
+            title: valueItem,
+            dept: node.dept,
+            parent_id: node.parent_id,
+        };
         const updatedTreeData = toggleExpandedForAll({
             treeData,
             expanded: true,
         });
+        updateMenu.mutate(updateNewData);
         setTreeData(updatedTreeData);
     };
 
     const handleDelete = (node: any) => {
         const updateData = deleteItemByTitle(treeData, node.id);
+        deleteMenu.mutate(node.id);
         setTreeData(updateData);
     };
 

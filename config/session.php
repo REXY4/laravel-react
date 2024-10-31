@@ -18,6 +18,7 @@ return [
     |
     */
 
+
     'driver' => env('SESSION_DRIVER', 'database'),
 
     /*
@@ -31,6 +32,7 @@ return [
     | indicate that via the expire_on_close configuration option.
     |
     */
+    'secure' => env('SESSION_SECURE_COOKIE', true), // pastikan ini true jika aplikasi menggunakan HTTPS
     'same_site' => 'none',
 
     'lifetime' => env('SESSION_LIFETIME', 120),

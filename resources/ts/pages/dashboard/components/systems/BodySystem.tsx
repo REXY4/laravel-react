@@ -2,10 +2,13 @@ import React, { useState } from 'react';
 import ButtonRound from '../../../../componets/buttons/ButtonRound';
 import Select from '../../../../componets/inputs/select';
 import LayoutFolderPrimary from './LayoutFolderPrimary';
+import MenuQuery from '../../../../query/menus';
+
+import MenuRepo from '../../../../repo/menus.repo';
 
 const BodySystem = () => {
+    const { data, isLoading } = MenuQuery.useGetMenu();
     const [buttonExpand, setButtonExpand] = useState<boolean>(true);
-
     const handleButtonExpand = () => {
         setButtonExpand(!buttonExpand);
     };
@@ -44,7 +47,9 @@ const BodySystem = () => {
                 </div>
             </div>
             <div className="mt-10">
-                <LayoutFolderPrimary />
+                {!isLoading && data !== undefined && (
+                    <LayoutFolderPrimary data={data?.data} />
+                )}
             </div>
         </div>
     );
