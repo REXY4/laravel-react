@@ -10,3 +10,7 @@ Route::get('/{route}',function(){
     return view('welcome');
 });
 
+Route::get('/dashboard/{route}',function(){
+    return view('welcome');
+});
+

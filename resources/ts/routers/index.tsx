@@ -3,12 +3,12 @@ import { createBrowserRouter } from 'react-router-dom';
 import LoginPage from '../pages/login';
 import { PrivateRoute, PublicRoute } from '../helpers/PrivateRoute';
 import Dashboard from '../pages/dashboard';
-import { DrawerPrimary } from '../componets/drawer';
+import Systems from '../pages/dashboard/systems';
 
 export const router = createBrowserRouter([
     {
         path: '/',
-        element: <PublicRoute />,
+        element: <LoginPage />,
         children: [
             {
                 path: '',
@@ -24,6 +24,10 @@ export const router = createBrowserRouter([
                 path: '',
                 element: <Dashboard />,
             },
+            // {
+            //     path: '/systems',
+            //     element: <Systems />,
+            // },
         ],
     },
 ]);
