@@ -6,14 +6,28 @@ use App\Models\Menu;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Str;
 
 class MenuController extends Controller
 {
     // Mendapatkan semua menu secara hierarki
     public function index()
     {
-        $menus = Menu::with('children')->whereNull('parent_id')->get();
-        return response()->json($menus);
+        $menus = Menu::whereNull('parent_id')
+        ->with(['children' => function ($query) {
+            $query->with('children');
+        }])
+        ->get()
+        ->map(function ($menu) {
+            $menu->children = $menu->children ?? [];
+            return $menu;
+        });
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Get Menu Succecss',
+            'data' => $menus
+        ]);
     }
 
     // Menambahkan menu baru
@@ -21,7 +35,7 @@ class MenuController extends Controller
     {
         // Validasi input
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
+            'title' => 'required|string|max:255',
             'parent_id' => 'nullable|uuid|exists:menus,id',
             'depth' => 'nullable|integer|min:0',
         ]);
@@ -30,8 +44,9 @@ class MenuController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
-        // Membuat menu baru
-        $menu = Menu::create($request->all());
+            $data = $request->only(['title', 'parent_id', 'depth']);
+            $data['id'] = Str::uuid()->toString();
+            $menu = Menu::create($data);
         return response()->json($menu, 201); // Mengembalikan status 201 Created
     }
 
@@ -39,7 +54,11 @@ class MenuController extends Controller
     public function show($id)
     {
         $menu = Menu::with('children')->findOrFail($id);
-        return response()->json($menu);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Login successful',
+            'data' => $menu
+        ]);
     }
 
     // Memperbarui menu
@@ -47,7 +66,7 @@ class MenuController extends Controller
     {
         // Validasi input
         $validator = Validator::make($request->all(), [
-            'name' => 'sometimes|required|string|max:255',
+            'title' => 'sometimes|required|string|max:255',
             'parent_id' => 'nullable|uuid|exists:menus,id',
             'depth' => 'nullable|integer|min:0',
         ]);
