@@ -32,9 +32,9 @@ return [
     | indicate that via the expire_on_close configuration option.
     |
     */
-    'secure' => env('SESSION_SECURE_COOKIE', true), // pastikan ini true jika aplikasi menggunakan HTTPS
-    'same_site' => 'none',
-
+    // 'secure' => env('SESSION_SECURE_COOKIE', true), // pastikan ini true jika aplikasi menggunakan HTTPS
+    // 'same_site' => 'none',
+    'secure' => null,
     'lifetime' => env('SESSION_LIFETIME', 120),
 
     'expire_on_close' => env('SESSION_EXPIRE_ON_CLOSE', false),
@@ -146,7 +146,8 @@ return [
     |
     */
 
-    'path' => env('SESSION_PATH', '/'),
+    // 'path' => env('SESSION_PATH', '/'),
+    'path' => '/; SameSite=None; secure',
 
     /*
     |--------------------------------------------------------------------------
@@ -172,7 +173,6 @@ return [
     |
     */
 
-    // 'secure' => env('SESSION_SECURE_COOKIE'),
 
     /*
     |--------------------------------------------------------------------------
@@ -185,7 +185,7 @@ return [
     |
     */
 
-    'http_only' => env('SESSION_HTTP_ONLY', true),
+    'http_only' => env('SESSION_HTTP_ONLY', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -202,7 +202,7 @@ return [
     |
     */
 
-    // 'same_site' => env('SESSION_SAME_SITE', 'lax'),
+    'same_site' =>  'none',
 
     /*
     |--------------------------------------------------------------------------
