@@ -18,6 +18,8 @@ import { Icon } from '@iconify/react';
 import { MenuInterface, MenuRequest } from '../../../../types/MenuTypes';
 import { useMutation } from '@tanstack/react-query';
 import MenuRepo from '../../../../repo/menus.repo';
+import Select from '../../../../componets/inputs/select';
+import Button from '../../../../componets/buttons/button';
 
 const generateUniqueId = () => Math.random().toString(36).substr(2, 9);
 
@@ -68,13 +70,18 @@ interface EditData {
 
 interface Props {
     data: Array<MenuInterface>;
+    isLoading: boolean;
+    refresh: any;
 }
 
-const LayoutFolderPrimary: React.FC<Props> = ({ data }) => {
+const LayoutFolderPrimary: React.FC<Props> = ({ data, isLoading, refresh }) => {
+    const [delCon, setDelCon] = useState<boolean>(false);
     const [valueItem, setValueItem] = useState<string>('');
     const [saveParentId, setSaveParentId] = useState<string>('');
     const [saveParentData, setSaveParentData] = useState<any>();
     const [conDrag, setConDrag] = useState<boolean>(false);
+    const [buttonExpand, setButtonExpand] = useState<boolean>(true);
+
     const refDrag = useRef<any>(null);
     const refDrag2 = useRef<any>(null);
     const [editData, setEditData] = useState<EditData>({
@@ -86,6 +93,11 @@ const LayoutFolderPrimary: React.FC<Props> = ({ data }) => {
         // refDrag2.current = param.parentNode;
         return param.path.length > 0;
     };
+
+    useEffect(() => {
+        setTreeData(data);
+    }, [data]);
+
     const handleAdd = async (node: any, path: number[]) => {
         setSaveParentId(node.id);
         setSaveParentData(node);
@@ -106,6 +118,15 @@ const LayoutFolderPrimary: React.FC<Props> = ({ data }) => {
             expanded: true,
         });
         setTreeData(updatedTreeData);
+    };
+
+    const handleButtonExpand = (expand: boolean) => {
+        setButtonExpand(!buttonExpand);
+        const updateDataTree = toggleExpandedForAll({
+            treeData,
+            expanded: expand,
+        });
+        setTreeData(updateDataTree);
     };
 
     const handleAddItem = (node: any) => {
@@ -150,6 +171,7 @@ const LayoutFolderPrimary: React.FC<Props> = ({ data }) => {
     const deleteMenu = useMutation({
         mutationFn: MenuRepo.deleteMenu,
         onSuccess: () => {
+            refresh();
             //   console.log('Post updated successfully');
         },
         onError: (error) => {
@@ -233,104 +255,150 @@ const LayoutFolderPrimary: React.FC<Props> = ({ data }) => {
         }
     }, [conDrag]);
     return (
-        <div style={{ height: '100vh' }}>
-            <SortableTree
-                className="node-main"
-                treeData={treeData}
-                // virtuosoRef={refDrag}
-                canDrop={(param: CanDropParams) => {
-                    getDataDrop(param);
-                    return true;
-                }}
-                onDragStateChanged={(param: DragAnDrop) => {
-                    setConDrag(!param.isDragging);
-                    // setConDrag(param.isDragging);
-                }}
-                onChange={(newTreeData) => setTreeData(newTreeData)}
-                canDrag={(param: any) => canDrag(param)}
-                generateNodeProps={({ node, path }) => ({
-                    title: (
-                        <div className="custom-node">
-                            {node.title == '' ? (
-                                <div
-                                    className="flex"
-                                    style={{
-                                        zIndex: 500,
-                                        position: 'absolute',
-                                    }}
-                                >
-                                    <Input
-                                        type="text"
-                                        name="title"
-                                        onChange={(
-                                            val: ChangeEvent<HTMLInputElement>
-                                        ) => setValueItem(val.target.value)}
-                                    />
-                                    <div className="ml-3">
-                                        <ButtonRound
-                                            onClick={() => handleAddItem(node)}
-                                            type="info"
-                                        >
-                                            +
-                                        </ButtonRound>
+        <>
+            <div className="w-[50%]">
+                <Select
+                    variant="secondary"
+                    name="menu"
+                    options={[
+                        {
+                            label: 'System Management',
+                            value: 'System Management',
+                        },
+                    ]}
+                    label="Menu"
+                />
+            </div>
+            <div className="flex mt-[48px]">
+                <div className="w-[133px] mr-[8px]">
+                    <ButtonRound
+                        onClick={() => handleButtonExpand(true)}
+                        type={buttonExpand ? 'light' : 'secondary'}
+                    >
+                        Expand All
+                    </ButtonRound>
+                </div>
+                <div className="w-[133px]">
+                    <ButtonRound
+                        onClick={() => handleButtonExpand(false)}
+                        type={!buttonExpand ? 'light' : 'secondary'}
+                    >
+                        Collapse All
+                    </ButtonRound>
+                </div>
+            </div>
+
+            <div className="mt-10" style={{ height: '100vh' }}>
+                <SortableTree
+                    className="node-main"
+                    treeData={treeData}
+                    // virtuosoRef={refDrag}
+                    canDrop={(param: CanDropParams) => {
+                        getDataDrop(param);
+                        return true;
+                    }}
+                    onDragStateChanged={(param: DragAnDrop) => {
+                        setConDrag(!param.isDragging);
+                        // setConDrag(param.isDragging);
+                    }}
+                    onChange={(newTreeData) => setTreeData(newTreeData)}
+                    canDrag={(param: any) => canDrag(param)}
+                    generateNodeProps={({ node, path }) => ({
+                        title: (
+                            <div className="custom-node">
+                                {node.title == '' ? (
+                                    <div
+                                        className="flex"
+                                        style={{
+                                            zIndex: 500,
+                                            position: 'absolute',
+                                        }}
+                                    >
+                                        <Input
+                                            type="text"
+                                            name="title"
+                                            onChange={(
+                                                val: ChangeEvent<HTMLInputElement>
+                                            ) => setValueItem(val.target.value)}
+                                        />
+                                        <div className="ml-3">
+                                            <ButtonRound
+                                                onClick={() =>
+                                                    handleAddItem(node)
+                                                }
+                                                type="info"
+                                            >
+                                                +
+                                            </ButtonRound>
+                                        </div>
+                                        <div className="ml-3">
+                                            <ButtonRound
+                                                onClick={() =>
+                                                    handleCancel(node)
+                                                }
+                                                type="danger"
+                                            >
+                                                <Icon
+                                                    icon={
+                                                        'material-symbols:cancel'
+                                                    }
+                                                    width={24}
+                                                    height={24}
+                                                />
+                                            </ButtonRound>
+                                        </div>
                                     </div>
-                                    <div className="ml-3">
-                                        <ButtonRound
-                                            onClick={() => handleCancel(node)}
-                                            type="danger"
-                                        >
-                                            <Icon
-                                                icon={'material-symbols:cancel'}
-                                                width={24}
-                                                height={24}
-                                            />
-                                        </ButtonRound>
-                                    </div>
-                                </div>
-                            ) : (
-                                <>
-                                    <span>{node.title}</span>
-                                    <div className="button-plus">
-                                        <ButtonRound
-                                            onClick={() =>
-                                                handleAdd(node, path)
-                                            }
-                                            type="info"
-                                        >
-                                            +
-                                        </ButtonRound>
-                                    </div>
-                                    <div className="button-plus">
-                                        <ButtonRound
-                                            onClick={() => handleEditData(node)}
-                                            type="secondary"
-                                        >
-                                            <Icon
-                                                icon={'ic:baseline-edit'}
-                                                width={14}
-                                                height={14}
-                                            />
-                                        </ButtonRound>
-                                    </div>
-                                    <div className="button-plus">
-                                        <ButtonRound
-                                            onClick={() => handleDelete(node)}
-                                            type="danger"
-                                        >
-                                            <Icon
-                                                icon={'material-symbols:delete'}
-                                                width={14}
-                                                height={14}
-                                            />
-                                        </ButtonRound>
-                                    </div>
-                                </>
-                            )}
-                        </div>
-                    ),
-                })}
-            />
-        </div>
+                                ) : (
+                                    <>
+                                        <span>{node.title}</span>
+                                        <div className="button-plus">
+                                            <ButtonRound
+                                                onClick={() =>
+                                                    handleAdd(node, path)
+                                                }
+                                                type="info"
+                                            >
+                                                +
+                                            </ButtonRound>
+                                        </div>
+                                        <div className="button-plus">
+                                            <ButtonRound
+                                                onClick={() =>
+                                                    handleEditData(node)
+                                                }
+                                                type="secondary"
+                                            >
+                                                <Icon
+                                                    icon={'ic:baseline-edit'}
+                                                    width={14}
+                                                    height={14}
+                                                />
+                                            </ButtonRound>
+                                        </div>
+                                        <div className="button-plus">
+                                            <ButtonRound
+                                                onClick={() =>
+                                                    handleDelete(node)
+                                                }
+                                                type="danger"
+                                            >
+                                                <Icon
+                                                    icon={
+                                                        'material-symbols:delete'
+                                                    }
+                                                    width={14}
+                                                    height={14}
+                                                />
+                                            </ButtonRound>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        ),
+                    })}
+                />
+            </div>
+        </>
     );
 };
 

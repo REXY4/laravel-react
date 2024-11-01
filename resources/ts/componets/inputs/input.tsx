@@ -28,7 +28,7 @@ const Input: React.FC<InputProps> = ({
     const variantClasses = {
         primary: 'border-blue-500 focus:ring-blue-500',
         secondary: 'border-gray-300 focus:ring-gray-500',
-        success: 'border-green-500 focus:ring-green-500',
+        success: 'border-gray-100 bg-gray focus:ring-[#1D2939] rounded-[20px]',
         danger: 'border-red-500 focus:ring-red-500',
     };
 

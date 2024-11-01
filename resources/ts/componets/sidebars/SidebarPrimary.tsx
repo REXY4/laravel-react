@@ -14,10 +14,11 @@ interface ItemSidebar {
     id: number;
     icon: string;
     title: string;
+    active: boolean;
 }
 
 const SidebarPrimary = () => {
-    const [isOpen, setIsOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState(true);
     const toggleDrawer = () => {
         setIsOpen((prevState) => !prevState);
     };
@@ -26,38 +27,44 @@ const SidebarPrimary = () => {
             id: 1,
             icon: 'material-symbols:folder',
             title: 'Systems',
+            active: false,
         },
         {
             id: 2,
-            icon: 'material-symbols:folder',
+            icon: 'hugeicons:menu-square',
             title: 'System Code',
+            active: false,
         },
         {
             id: 3,
-            icon: 'material-symbols:folder',
+            icon: 'hugeicons:menu-square',
             title: 'Properties',
+            active: false,
         },
         {
             id: 4,
-            icon: 'material-symbols:folder',
+            icon: 'hugeicons:menu-square',
             title: 'Menus',
+            active: true,
         },
         {
             id: 5,
-            icon: 'material-symbols:folder',
+            icon: 'hugeicons:menu-square',
             title: 'App List',
+            active: false,
         },
     ];
     return (
         <Sidebar
+            toggled={isOpen}
             rootStyles={{
+                height: '100%',
+                width: isOpen ? '100%' : '0%',
+                margin: 24,
                 [`.${sidebarClasses.container}`]: {
-                    // backgroundColor: 'red',
-                    height: '90vh',
+                    backgroundColor: 'red',
                     paddingLeft: '10px',
                     background: '#101828',
-                    margin: 24,
-                    width: '100%',
                     borderRadius: 24,
                 },
             }}
@@ -72,14 +79,15 @@ const SidebarPrimary = () => {
                         menuItemStyles={{
                             button: {
                                 backgroundColor: 'none',
-                                // color: '#b6c8d9',
                                 display: 'flex',
                                 alignItems: 'center',
                                 color: '#667085',
 
-                                [`&.active`]: {
-                                    backgroundColor: '#13395e',
-                                    color: '#ffffff',
+                                [`&.${menuClasses.active}`]: {
+                                    background: '#9FF443',
+                                    width: '90%',
+                                    borderRadius: 15,
+                                    color: 'rgb(0,0,0,0.2)', // warna teks saat hover
                                 },
                                 '&:hover': {
                                     background: '#9FF443',
@@ -96,7 +104,10 @@ const SidebarPrimary = () => {
                     >
                         {dataSidebar.map((item: ItemSidebar) => {
                             return (
-                                <MenuItem className="flex items-center w-full  ">
+                                <MenuItem
+                                    className="flex items-center w-full  "
+                                    active={item.active}
+                                >
                                     <div className="flex  item-center  w-full ">
                                         <span className="mr-[16px]">
                                             <Icon
@@ -112,13 +123,6 @@ const SidebarPrimary = () => {
                                 </MenuItem>
                             );
                         })}
-
-                        {/* <SubMenu label="Charts">
-                            <MenuItem> Pie charts </MenuItem>
-                            <MenuItem> Line charts </MenuItem>
-                        </SubMenu>
-                        <MenuItem> Documentation </MenuItem>
-                        <MenuItem> Calendar </MenuItem> */}
                     </Menu>
                 </div>
             </div>

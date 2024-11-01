@@ -1,66 +1,185 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+Here is the translated README in English:
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+---
 
-## About Laravel
+## Users for testing
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+```
+email : admin@example.com
+password : password
+```
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Features
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+-   [x] **Add Folder** - Allows users to create new folders within the system.
+-   [x] **Drag and Drop** - Enables users to rearrange folders by dragging and dropping.
+-   [x] **Delete Folder** - Provides an option to delete existing folders.
+-   [x] **Update Folder** - Allows users to rename or update folder information.
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Feel free to customize the content above based on the specifics of your project!
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+# Laravel Vite React Project
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+This project integrates Laravel as the backend and React as the frontend, configured with Vite for a faster frontend development experience. Vite provides the benefit of speedy builds and instant module refresh during development.
 
-## Laravel Sponsors
+## Prerequisites
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Before starting, ensure you have installed:
 
-### Premium Partners
+-   [PHP](https://www.php.net/downloads.php) >= 8.0
+-   [Composer](https://getcomposer.org/download/)
+-   [Node.js & npm](https://nodejs.org/en/) (LTS version recommended)
+-   [Git](https://git-scm.com/downloads)
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+## Installation Steps
 
-## Contributing
+Follow these steps to set up a Laravel project with Vite and React.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 1. Clone the Repository
 
-## Code of Conduct
+```bash
+git clone https://github.com/REXY4/laravel-react.git
+cd laravel-react
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 2. Install Laravel Dependencies
 
-## Security Vulnerabilities
+Install all required PHP dependencies for Laravel using Composer:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+composer install
+```
 
-## License
+### 3. Configure the Environment
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Copy the `.env.example` file to `.env` and adjust the database and other environment variables as needed:
+
+```bash
+cp .env.example .env
+```
+
+Then, generate the Laravel application key:
+
+```bash
+php artisan key:generate
+```
+
+### 4. Install JavaScript Dependencies
+
+Install the necessary frontend dependencies, including Vite and React:
+
+```bash
+npm install
+```
+
+### 5. Configure Vite for Laravel and React
+
+In the `vite.config.js` file, add the configuration so Vite can work with Laravel:
+
+```javascript
+import { defineConfig } from 'vite';
+import laravel from 'laravel-vite-plugin';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+    plugins: [
+        laravel({
+            input: ['resources/js/app.jsx'], // Adjust to your React entry path
+            refresh: true,
+        }),
+        react(),
+    ],
+});
+```
+
+Ensure the file `resources/js/app.jsx` (or `.tsx` if using TypeScript) exists as the main entry point for React.
+
+### 6. Create Directory Structure for React
+
+If it doesn’t already exist, create a basic structure for the React application inside the `resources/js` folder:
+
+```bash
+mkdir -p resources/js/components
+```
+
+Then, create the `app.jsx` file in `resources/js` as the entry point for React:
+
+```javascript
+// resources/js/app.jsx
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import App from './components/App';
+
+const root = createRoot(document.getElementById('app'));
+root.render(<App />);
+```
+
+And create the `App.jsx` component inside `resources/ts/components`:
+
+```javascript
+// resources/js/components/App.jsx
+import React from 'react';
+
+const App = () => {
+    return <h1>Hello, React with Laravel & Vite!</h1>;
+};
+
+export default App;
+```
+
+### 7. Add Root Element in Blade Template
+
+In the `resources/views/welcome.blade.php` file, add a `div` element with `id="app"`:
+
+```html
+<!doctype html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+    <head>
+        <!-- Meta tags and other head content -->
+        @vite('resources/js/app.jsx')
+    </head>
+    <body>
+        <div id="app"></div>
+    </body>
+</html>
+```
+
+### 8. Run Database Migration (Optional)
+
+If the project requires a database, run migrations:
+
+```bash
+php artisan migrate
+
+php artisan db:seed
+```
+
+### 9. Run Laravel and Vite Servers
+
+Start both Laravel and Vite servers:
+
+**Laravel Server:**
+
+```bash
+composer run dev
+```
+
+### 10. Access the Application
+
+Open your application in the browser at `http://localhost:8000`. Vite will automatically handle the React build, and you should see a page displaying “Hello, React with Laravel & Vite!”
+
+## Production Build
+
+When ready for deployment, you can create a production build:
+
+```bash
+npm run build
+```
+
+The application can then be served using the Laravel server without needing `npm run dev`.
+
+---
+
+Congratulations! You have successfully set up a Laravel project with React and Vite.
