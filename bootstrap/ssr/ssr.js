@@ -1,8 +1,8 @@
-import { jsx, jsxs, Fragment } from "react/jsx-runtime";
+import { jsx, Fragment, jsxs } from "react/jsx-runtime";
 import { useState, useRef, useEffect, useCallback } from "react";
-import SortableTree, { toggleExpandedForAll } from "@nosferatu500/react-sortable-tree";
+import SortableTree, { getDepth, toggleExpandedForAll } from "@nosferatu500/react-sortable-tree";
 import { Icon } from "@iconify/react";
-import { useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient, QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import axios from "axios";
 import RelationGraph from "relation-graph-react";
 import { useSelector, useDispatch } from "react-redux";
@@ -10,6 +10,13 @@ import { useNavigate } from "react-router-dom";
 import { createInertiaApp } from "@inertiajs/react";
 import createServer from "@inertiajs/react/server";
 import ReactDOMServer from "react-dom/server";
+function Welcome() {
+  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { children: "Hallo World" }) });
+}
+const __vite_glob_0_0 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  default: Welcome
+}, Symbol.toStringTag, { value: "Module" }));
 const ButtonRound = ({
   type = "primary",
   children,
@@ -17,7 +24,7 @@ const ButtonRound = ({
   ...props
 }) => {
   const buttonTypes = {
-    primary: "bg-blue-500 hover:bg-blue-700 text-white w-full rounded-[20px]",
+    primary: "bg-[#253BFF] hover:bg-[#253BFF] text-white w-full rounded-[20px]",
     secondary: "bg-[#1D2939] hover:bg-[#1D2939] text-white w-full rounded-[20px]",
     success: "bg-green-500 hover:bg-green-700 text-white w-full rounded-[20px]",
     danger: "bg-red-500 hover:bg-red-700 text-white w-full rounded-[20px]",
@@ -28,40 +35,6 @@ const ButtonRound = ({
   };
   const buttonClass = `${buttonTypes[type]} font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`;
   return /* @__PURE__ */ jsx("button", { className: buttonClass, onClick, ...props, children });
-};
-const Select = ({
-  label,
-  options,
-  variant = "primary",
-  value,
-  onChange,
-  name,
-  required = false
-}) => {
-  const variantClasses = {
-    primary: "border-blue-500 focus:ring-blue-500",
-    secondary: "border-gray-300 focus:ring-gray-500",
-    success: "border-green-500 focus:ring-green-500",
-    danger: "border-red-500 focus:ring-red-500"
-  };
-  return /* @__PURE__ */ jsxs("div", { className: "mb-4", children: [
-    label && /* @__PURE__ */ jsx("label", { className: "block text-sm font-semibold mb-1 text-gray-700 capitalize", children: label }),
-    /* @__PURE__ */ jsxs(
-      "select",
-      {
-        name,
-        className: `block w-full px-4 py-2 border rounded shadow-sm focus:outline-none focus:ring-2 ${variantClasses[variant]}`,
-        value,
-        onChange,
-        required,
-        children: [
-          /* @__PURE__ */ jsx("option", { value: "", disabled: true, children: "Select an option" }),
-          " ",
-          options.map((option) => /* @__PURE__ */ jsx("option", { value: option.value, children: option.label }, option.value))
-        ]
-      }
-    )
-  ] });
 };
 const Input = ({
   label,
@@ -77,7 +50,7 @@ const Input = ({
   const variantClasses = {
     primary: "border-blue-500 focus:ring-blue-500",
     secondary: "border-gray-300 focus:ring-gray-500",
-    success: "border-green-500 focus:ring-green-500",
+    success: "border-gray-100 bg-gray focus:ring-[#1D2939] rounded-[20px]",
     danger: "border-red-500 focus:ring-red-500"
   };
   const togglePasswordVisibility = () => {
@@ -147,6 +120,108 @@ const Input = ({
     ] })
   ] });
 };
+const getMenu = async () => {
+  try {
+    const response = await axios.get(
+      "api/v1/menus",
+      {
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem("_token")}`
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+const createMenu = async (body) => {
+  try {
+    const response = await axios.post(
+      "api/v1/menus",
+      body,
+      {
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem("_token")}`
+        }
+      }
+    );
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+const updateMenu = async (body) => {
+  try {
+    const response = await axios.put(
+      "api/v1/menus/" + body.id,
+      body,
+      {
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem("_token")}`
+        }
+      }
+    );
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+const deleteMenu = async (id) => {
+  try {
+    const response = await axios.delete(
+      "api/v1/menus/" + id,
+      {
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem("_token")}`
+        }
+      }
+    );
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+const MenuRepo = {
+  getMenu,
+  createMenu,
+  deleteMenu,
+  updateMenu
+};
+const Select = ({
+  label,
+  options,
+  variant = "primary",
+  value,
+  onChange,
+  name,
+  required = false
+}) => {
+  const variantClasses = {
+    primary: "border-blue-500 focus:ring-blue-500",
+    secondary: "border-gray-300 focus:ring-gray-500",
+    success: "border-green-500 focus:ring-green-500",
+    danger: "border-red-500 focus:ring-red-500"
+  };
+  return /* @__PURE__ */ jsxs("div", { className: "mb-4", children: [
+    label && /* @__PURE__ */ jsx("label", { className: "block text-sm font-semibold mb-1 text-gray-700 capitalize", children: label }),
+    /* @__PURE__ */ jsxs(
+      "select",
+      {
+        name,
+        className: `block w-full px-4 py-2 border rounded shadow-sm focus:outline-none focus:ring-2 ${variantClasses[variant]}`,
+        value,
+        onChange,
+        required,
+        children: [
+          /* @__PURE__ */ jsx("option", { value: "", disabled: true, children: "Select an option" }),
+          " ",
+          options.map((option) => /* @__PURE__ */ jsx("option", { value: option.value, children: option.label }, option.value))
+        ]
+      }
+    )
+  ] });
+};
 const generateUniqueId = () => Math.random().toString(36).substr(2, 9);
 const deleteItemByTitle = (data, targetTitle) => {
   return data.map((item) => {
@@ -156,25 +231,38 @@ const deleteItemByTitle = (data, targetTitle) => {
     return item;
   }).filter((item) => item.id !== targetTitle);
 };
-const LayoutFolderPrimary = ({ data }) => {
+const LayoutFolderPrimary = ({ data, isLoading, refresh }) => {
+  useState(false);
   const [valueItem, setValueItem] = useState("");
+  const [saveParentId, setSaveParentId] = useState("");
+  const [saveParentData, setSaveParentData] = useState();
+  const [conDrag, setConDrag] = useState(false);
+  const [buttonExpand, setButtonExpand] = useState(true);
   const refDrag = useRef(null);
+  useRef(null);
   const [editData, setEditData] = useState({
     edit: false,
     prevVal: ""
   });
   const [treeData, setTreeData] = useState(data);
-  const canDrag = ({ path }) => {
-    return path.length > 0;
+  const canDrag = (param) => {
+    return param.path.length > 0;
   };
+  useEffect(() => {
+    setTreeData(data);
+  }, [data]);
   const handleAdd = async (node, path) => {
+    setSaveParentId(node.id);
+    setSaveParentData(node);
+    setEditData({ edit: false, prevVal: "" });
     const newChild = {
-      id: generateUniqueId(),
+      id: generateUniqueId,
       title: "",
+      depth: getDepth(node),
       children: []
     };
     if (!node.children) {
-      console.log(node);
+      node.children.push(newChild);
     } else {
       node.children.push(newChild);
     }
@@ -184,16 +272,66 @@ const LayoutFolderPrimary = ({ data }) => {
     });
     setTreeData(updatedTreeData);
   };
+  const handleButtonExpand = (expand) => {
+    setButtonExpand(!buttonExpand);
+    const updateDataTree = toggleExpandedForAll({
+      treeData,
+      expanded: expand
+    });
+    setTreeData(updateDataTree);
+  };
   const handleAddItem = (node) => {
     node.title = valueItem;
-    setEditData({ edit: false, prevVal: "" });
     const updatedTreeData = toggleExpandedForAll({
       treeData,
       expanded: true
     });
+    let order = 1;
+    if (saveParentData.children !== void 0) {
+      order = saveParentData.children.length;
+    }
+    if (editData.edit) {
+      const updateNewData = {
+        id: node.id,
+        title: valueItem,
+        depth: node.depth,
+        parent_id: node.parent_id
+      };
+      updateMenu2.mutate(updateNewData);
+    } else {
+      const updateNewData = {
+        title: valueItem,
+        depth: order,
+        parent_id: saveParentId
+      };
+      createMenu2.mutate(updateNewData);
+    }
     setTreeData(updatedTreeData);
   };
+  const createMenu2 = useMutation({
+    mutationFn: MenuRepo.createMenu,
+    onSuccess: () => {
+    },
+    onError: (error) => {
+    }
+  });
+  const deleteMenu2 = useMutation({
+    mutationFn: MenuRepo.deleteMenu,
+    onSuccess: () => {
+      refresh();
+    },
+    onError: (error) => {
+    }
+  });
+  const updateMenu2 = useMutation({
+    mutationFn: MenuRepo.updateMenu,
+    onSuccess: () => {
+    },
+    onError: (error) => {
+    }
+  });
   const handleEditData = (node) => {
+    setSaveParentId(node.id);
     setEditData({ ...editData, edit: true, prevVal: node.title });
     node.title = "";
     const updatedTreeData = toggleExpandedForAll({
@@ -204,6 +342,7 @@ const LayoutFolderPrimary = ({ data }) => {
   };
   const handleDelete = (node) => {
     const updateData = deleteItemByTitle(treeData, node.id);
+    deleteMenu2.mutate(node.id);
     setTreeData(updateData);
   };
   const handleCancel = (node) => {
@@ -219,144 +358,32 @@ const LayoutFolderPrimary = ({ data }) => {
       setTreeData(updateData);
     }
   };
-  return /* @__PURE__ */ jsx("div", { style: { height: "100vh" }, children: /* @__PURE__ */ jsx(
-    SortableTree,
-    {
-      className: "node-main",
-      treeData,
-      virtuosoRef: refDrag,
-      onVisibilityToggle: (param) => {
-        console.log(param);
-      },
-      onChange: (newTreeData) => setTreeData(newTreeData),
-      canDrag,
-      generateNodeProps: ({ node, path }) => ({
-        title: /* @__PURE__ */ jsx("div", { className: "custom-node", children: node.title == "" ? /* @__PURE__ */ jsxs(
-          "div",
-          {
-            className: "flex",
-            style: {
-              zIndex: 500,
-              position: "absolute"
-            },
-            children: [
-              /* @__PURE__ */ jsx(
-                Input,
-                {
-                  type: "text",
-                  name: "title",
-                  onChange: (val) => setValueItem(val.target.value)
-                }
-              ),
-              /* @__PURE__ */ jsx("div", { className: "ml-3", children: /* @__PURE__ */ jsx(
-                ButtonRound,
-                {
-                  onClick: () => handleAddItem(node),
-                  type: "info",
-                  children: "+"
-                }
-              ) }),
-              /* @__PURE__ */ jsx("div", { className: "ml-3", children: /* @__PURE__ */ jsx(
-                ButtonRound,
-                {
-                  onClick: () => handleCancel(node),
-                  type: "danger",
-                  children: /* @__PURE__ */ jsx(
-                    Icon,
-                    {
-                      icon: "material-symbols:cancel",
-                      width: 24,
-                      height: 24
-                    }
-                  )
-                }
-              ) })
-            ]
-          }
-        ) : /* @__PURE__ */ jsxs(Fragment, { children: [
-          /* @__PURE__ */ jsx("span", { children: node.title }),
-          /* @__PURE__ */ jsx("div", { className: "button-plus", children: /* @__PURE__ */ jsx(
-            ButtonRound,
-            {
-              onClick: () => handleAdd(node),
-              type: "info",
-              children: "+"
-            }
-          ) }),
-          /* @__PURE__ */ jsx("div", { className: "button-plus", children: /* @__PURE__ */ jsx(
-            ButtonRound,
-            {
-              onClick: () => handleEditData(node),
-              type: "secondary",
-              children: /* @__PURE__ */ jsx(
-                Icon,
-                {
-                  icon: "ic:baseline-edit",
-                  width: 14,
-                  height: 14
-                }
-              )
-            }
-          ) }),
-          /* @__PURE__ */ jsx("div", { className: "button-plus", children: /* @__PURE__ */ jsx(
-            ButtonRound,
-            {
-              onClick: () => handleDelete(node),
-              type: "danger",
-              children: /* @__PURE__ */ jsx(
-                Icon,
-                {
-                  icon: "material-symbols:delete",
-                  width: 14,
-                  height: 14
-                }
-              )
-            }
-          ) })
-        ] }) })
-      })
-    }
-  ) });
-};
-const __vite_glob_0_2 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
-  __proto__: null,
-  default: LayoutFolderPrimary
-}, Symbol.toStringTag, { value: "Module" }));
-const getMenu = async () => {
-  try {
-    const response = await axios.get("api/v1/menus");
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-const MenuRepo = {
-  getMenu
-};
-const useGetMenu = () => {
-  return useQuery({
-    queryKey: ["menus"],
-    // Key unik untuk query ini
-    queryFn: MenuRepo.getMenu,
-    // Fungsi untuk mengambil data
-    staleTime: 1e3 * 60 * 5,
-    // Data disimpan selama 5 menit sebelum dianggap "stale"
-    onError: (error) => {
-      console.error("Error fetching menus:", error);
-    }
-  });
-};
-const MenuQuery = {
-  useGetMenu
-};
-const BodySystem = () => {
-  useQueryClient();
-  const { data, isLoading, isError, error } = MenuQuery.useGetMenu();
-  const [buttonExpand, setButtonExpand] = useState(true);
-  const handleButtonExpand = () => {
-    setButtonExpand(!buttonExpand);
+  const getDataDrop = (param) => {
+    refDrag.current = param;
   };
-  return /* @__PURE__ */ jsxs("div", { children: [
+  useEffect(() => {
+    if (conDrag) {
+      if (refDrag.current.nextParent !== void 0) {
+        const filterDeepth = refDrag.current.nextParent.children.find(
+          (item) => item.depth == refDrag.current.nextTreeIndex
+        );
+        const updateData2 = {
+          ...filterDeepth,
+          depth: refDrag.current.prevTreeIndex
+        };
+        updateMenu2.mutate(updateData2);
+      }
+      const updateData = {
+        id: refDrag.current.node.id,
+        title: refDrag.current.node.title,
+        depth: refDrag.current.nextTreeIndex,
+        parent_id: refDrag.current.nextParent ? refDrag.current.nextParent.id : ""
+      };
+      updateMenu2.mutate(updateData);
+      setConDrag(false);
+    }
+  }, [conDrag]);
+  return /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsx("div", { className: "w-[50%]", children: /* @__PURE__ */ jsx(
       Select,
       {
@@ -375,24 +402,142 @@ const BodySystem = () => {
       /* @__PURE__ */ jsx("div", { className: "w-[133px] mr-[8px]", children: /* @__PURE__ */ jsx(
         ButtonRound,
         {
-          onClick: handleButtonExpand,
-          type: !buttonExpand ? "light" : "secondary",
+          onClick: () => handleButtonExpand(true),
+          type: buttonExpand ? "light" : "secondary",
           children: "Expand All"
         }
       ) }),
       /* @__PURE__ */ jsx("div", { className: "w-[133px]", children: /* @__PURE__ */ jsx(
         ButtonRound,
         {
-          onClick: handleButtonExpand,
-          type: buttonExpand ? "light" : "secondary",
+          onClick: () => handleButtonExpand(false),
+          type: !buttonExpand ? "light" : "secondary",
           children: "Collapse All"
         }
       ) })
     ] }),
-    /* @__PURE__ */ jsx("div", { className: "mt-10", children: isLoading && /* @__PURE__ */ jsx(LayoutFolderPrimary, { data: [] }) })
+    /* @__PURE__ */ jsx("div", { className: "mt-10", style: { height: "100vh" }, children: /* @__PURE__ */ jsx(
+      SortableTree,
+      {
+        className: "node-main",
+        treeData,
+        canDrop: (param) => {
+          getDataDrop(param);
+          return true;
+        },
+        onDragStateChanged: (param) => {
+          setConDrag(!param.isDragging);
+        },
+        onChange: (newTreeData) => setTreeData(newTreeData),
+        canDrag: (param) => canDrag(param),
+        generateNodeProps: ({ node, path }) => ({
+          title: /* @__PURE__ */ jsx("div", { className: "custom-node", children: node.title == "" ? /* @__PURE__ */ jsxs(
+            "div",
+            {
+              className: "flex",
+              style: {
+                zIndex: 500,
+                position: "absolute"
+              },
+              children: [
+                /* @__PURE__ */ jsx(
+                  Input,
+                  {
+                    type: "text",
+                    name: "title",
+                    onChange: (val) => setValueItem(val.target.value)
+                  }
+                ),
+                /* @__PURE__ */ jsx("div", { className: "ml-3", children: /* @__PURE__ */ jsx(
+                  ButtonRound,
+                  {
+                    onClick: () => handleAddItem(node),
+                    type: "info",
+                    children: "+"
+                  }
+                ) }),
+                /* @__PURE__ */ jsx("div", { className: "ml-3", children: /* @__PURE__ */ jsx(
+                  ButtonRound,
+                  {
+                    onClick: () => handleCancel(node),
+                    type: "danger",
+                    children: /* @__PURE__ */ jsx(
+                      Icon,
+                      {
+                        icon: "material-symbols:cancel",
+                        width: 24,
+                        height: 24
+                      }
+                    )
+                  }
+                ) })
+              ]
+            }
+          ) : /* @__PURE__ */ jsxs(Fragment, { children: [
+            /* @__PURE__ */ jsx("span", { children: node.title }),
+            /* @__PURE__ */ jsx("div", { className: "button-plus", children: /* @__PURE__ */ jsx(
+              ButtonRound,
+              {
+                onClick: () => handleAdd(node),
+                type: "info",
+                children: "+"
+              }
+            ) }),
+            /* @__PURE__ */ jsx("div", { className: "button-plus", children: /* @__PURE__ */ jsx(
+              ButtonRound,
+              {
+                onClick: () => handleEditData(node),
+                type: "secondary",
+                children: /* @__PURE__ */ jsx(
+                  Icon,
+                  {
+                    icon: "ic:baseline-edit",
+                    width: 14,
+                    height: 14
+                  }
+                )
+              }
+            ) }),
+            /* @__PURE__ */ jsx("div", { className: "button-plus", children: /* @__PURE__ */ jsx(
+              ButtonRound,
+              {
+                onClick: () => handleDelete(node),
+                type: "danger",
+                children: /* @__PURE__ */ jsx(
+                  Icon,
+                  {
+                    icon: "material-symbols:delete",
+                    width: 14,
+                    height: 14
+                  }
+                )
+              }
+            ) })
+          ] }) })
+        })
+      }
+    ) })
   ] });
 };
-const __vite_glob_0_0 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_3 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  default: LayoutFolderPrimary
+}, Symbol.toStringTag, { value: "Module" }));
+const BodySystem = ({
+  data,
+  isLoading,
+  refresh
+}) => {
+  return /* @__PURE__ */ jsx("div", { children: /* @__PURE__ */ jsx("div", { className: "mt-10", children: !isLoading && data !== void 0 && /* @__PURE__ */ jsx(
+    LayoutFolderPrimary,
+    {
+      refresh,
+      isLoading,
+      data: data == null ? void 0 : data.data
+    }
+  ) }) });
+};
+const __vite_glob_0_1 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: BodySystem
 }, Symbol.toStringTag, { value: "Module" }));
@@ -503,7 +648,7 @@ const LayoutFolder = () => {
   }, []);
   return /* @__PURE__ */ jsx("div", { style: { height: "calc(100vh)", width: "100%" }, children: /* @__PURE__ */ jsx(RelationGraph, { ref: graphRef, options: graphOptions }) });
 };
-const __vite_glob_0_1 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_2 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: LayoutFolder
 }, Symbol.toStringTag, { value: "Module" }));
@@ -521,23 +666,79 @@ const Header = () => {
     ] })
   ] });
 };
+const useGetMenu = () => {
+  return useQuery({
+    queryKey: ["menus"],
+    // Key unik untuk query ini
+    queryFn: MenuRepo.getMenu,
+    // Fungsi untuk mengambil data
+    staleTime: 1e3 * 60 * 5
+    // Data disimpan selama 5 menit sebelum dianggap "stale"
+  });
+};
+const MenuQuery = {
+  useGetMenu
+};
 const Dashboard = () => {
+  const { data, isLoading, refetch } = MenuQuery.useGetMenu();
+  const [formName, setFormName] = useState("");
+  const queryClient2 = useQueryClient();
+  const createMenu2 = useMutation({
+    mutationFn: MenuRepo.createMenu,
+    onSuccess: (newItem) => {
+      refetch();
+      queryClient2.setQueryData(["menu"], (oldData) => ({
+        ...oldData,
+        items: [...oldData.items, newItem]
+        // Asumsikan `newItem` adalah item yang baru dibuat
+      }));
+    },
+    onError: (error) => {
+    }
+  });
+  const handleAddName = () => {
+    const body = {
+      parent_id: "",
+      title: formName,
+      depth: 0
+    };
+    createMenu2.mutate(body);
+  };
   return /* @__PURE__ */ jsxs("div", { className: "my-10 pl-[48px] w-full", children: [
     /* @__PURE__ */ jsx(Header, {}),
     /* @__PURE__ */ jsxs("div", { className: "grid grid-cols-1 md:grid-cols-2 mt-10", children: [
-      /* @__PURE__ */ jsx("div", { className: "w-full", children: /* @__PURE__ */ jsx(BodySystem, {}) }),
-      /* @__PURE__ */ jsx("div", { className: "w-full" })
+      /* @__PURE__ */ jsx("div", { className: "w-full", children: data && /* @__PURE__ */ jsx(
+        BodySystem,
+        {
+          refresh: refetch,
+          data,
+          isLoading
+        }
+      ) }),
+      /* @__PURE__ */ jsx("div", { className: "w-full p-20", children: !isLoading && data && (data == null ? void 0 : data.data.length) === 0 && /* @__PURE__ */ jsxs("div", { children: [
+        /* @__PURE__ */ jsx(
+          Input,
+          {
+            onChange: (val) => setFormName(val.target.value),
+            variant: "success",
+            label: "Name",
+            name: "name",
+            placeholder: "Enter Menu name"
+          }
+        ),
+        /* @__PURE__ */ jsx(ButtonRound, { onClick: handleAddName, type: "primary", children: "Save" })
+      ] }) })
     ] })
   ] });
 };
-const __vite_glob_0_3 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_4 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: Dashboard
 }, Symbol.toStringTag, { value: "Module" }));
 const Systems = () => {
   return /* @__PURE__ */ jsx("div", { children: /* @__PURE__ */ jsx("h1", { style: { color: "black" }, children: "Hallo Systems" }) });
 };
-const __vite_glob_0_4 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_5 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: Systems
 }, Symbol.toStringTag, { value: "Module" }));
@@ -612,6 +813,7 @@ const authLogin = (email, password, navigate) => async (dispatch) => {
         token: response.data.token
       });
       navigate("/dashboard");
+      window.location.reload();
     }
   } catch (error) {
     throw error;
@@ -680,18 +882,19 @@ const LoginPage = () => {
     /* @__PURE__ */ jsx("div", { className: "my-2", children: /* @__PURE__ */ jsx(Button, { onClick: handleSubmit, children: "Login" }) })
   ] }) });
 };
-const __vite_glob_0_5 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const __vite_glob_0_6 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: LoginPage
 }, Symbol.toStringTag, { value: "Module" }));
+const queryClient = new QueryClient();
 createServer(
   (page) => createInertiaApp({
     page,
     render: ReactDOMServer.renderToString,
     resolve: (name) => {
-      const pages = /* @__PURE__ */ Object.assign({ "./pages/dashboard/components/systems/BodySystem.tsx": __vite_glob_0_0, "./pages/dashboard/components/systems/LayoutFolder.tsx": __vite_glob_0_1, "./pages/dashboard/components/systems/LayoutFolderPrimary.tsx": __vite_glob_0_2, "./pages/dashboard/index.tsx": __vite_glob_0_3, "./pages/dashboard/systems/index.tsx": __vite_glob_0_4, "./pages/login/index.tsx": __vite_glob_0_5 });
+      const pages = /* @__PURE__ */ Object.assign({ "./pages/Welcome.tsx": __vite_glob_0_0, "./pages/dashboard/components/systems/BodySystem.tsx": __vite_glob_0_1, "./pages/dashboard/components/systems/LayoutFolder.tsx": __vite_glob_0_2, "./pages/dashboard/components/systems/LayoutFolderPrimary.tsx": __vite_glob_0_3, "./pages/dashboard/index.tsx": __vite_glob_0_4, "./pages/dashboard/systems/index.tsx": __vite_glob_0_5, "./pages/login/index.tsx": __vite_glob_0_6 });
       return pages[`./pages/${name}.tsx`];
     },
-    setup: ({ App: App2, props }) => /* @__PURE__ */ jsx(App2, { ...props })
+    setup: ({ App: App2, props }) => /* @__PURE__ */ jsx(QueryClientProvider, { client: queryClient, children: /* @__PURE__ */ jsx(App2, { ...props }) })
   })
 );
