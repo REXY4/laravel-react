@@ -1,4 +1,4 @@
-# Laravel Vite React Project
+# Laravel Vite React Project Typescript
 
 This project integrates Laravel as the backend and React as the frontend, configured with Vite for a faster frontend development experience. Vite provides the benefit of speedy builds and instant module refresh during development.
 
