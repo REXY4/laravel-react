@@ -14,6 +14,7 @@ const authLogin =
                     token: response.data.token,
                 });
                 navigate('/dashboard');
+                window.location.reload();
             }
         } catch (error) {
             throw error;

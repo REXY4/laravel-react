@@ -27,7 +27,7 @@ const ButtonRound: React.FC<ButtonProps> = ({
     // Menentukan kelas Tailwind CSS berdasarkan tipe tombol
     const buttonTypes: Record<string, string> = {
         primary:
-            'bg-blue-500 hover:bg-blue-700 text-white w-full rounded-[20px]',
+            'bg-[#253BFF] hover:bg-[#253BFF] text-white w-full rounded-[20px]',
         secondary:
             'bg-[#1D2939] hover:bg-[#1D2939] text-white w-full rounded-[20px]',
         success:
