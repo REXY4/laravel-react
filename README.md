@@ -1,6 +1,6 @@
-Here is the translated README in English:
+# Laravel Vite React Project
 
----
+This project integrates Laravel as the backend and React as the frontend, configured with Vite for a faster frontend development experience. Vite provides the benefit of speedy builds and instant module refresh during development.
 
 ## Users for testing
 
@@ -19,10 +19,6 @@ password : password
 ---
 
 Feel free to customize the content above based on the specifics of your project!
-
-# Laravel Vite React Project
-
-This project integrates Laravel as the backend and React as the frontend, configured with Vite for a faster frontend development experience. Vite provides the benefit of speedy builds and instant module refresh during development.
 
 ## Prerequisites
 
