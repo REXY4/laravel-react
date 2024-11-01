@@ -6,6 +6,7 @@
   "resources/ts/componets/dashboard/header.tsx": [],
   "resources/ts/componets/inputs/input.tsx": [],
   "resources/ts/componets/inputs/select.tsx": [],
+  "resources/ts/pages/Welcome.tsx": [],
   "resources/ts/pages/dashboard/components/systems/BodySystem.tsx": [],
   "resources/ts/pages/dashboard/components/systems/CustomTreeStyles.css": [],
   "resources/ts/pages/dashboard/components/systems/LayoutFolder.tsx": [],
